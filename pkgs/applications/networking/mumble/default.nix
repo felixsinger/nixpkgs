@@ -91,6 +91,11 @@ let
 
     NIX_CFLAGS_COMPILE = optional speechdSupport "-I${speechd}/include/speech-dispatcher";
 
+    patchPhase = ''
+      substituteInPlace $src/scripts/mumble.desktop \
+        --replace "Exec''\=mumble" "Exec''\=mumble ''\-m"
+    '';
+
     installPhase = ''
       # bin stuff
       install -Dm755 release/mumble $out/bin/mumble
