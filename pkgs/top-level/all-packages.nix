@@ -9615,6 +9615,8 @@ in
 
   copper = callPackage ../development/compilers/copper {};
 
+  coreboot-toolchain = callPackage ../development/tools/misc/coreboot-toolchain { };
+
   inherit (callPackages ../development/compilers/crystal {
     llvmPackages = llvmPackages_10;
   })
