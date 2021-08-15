@@ -66,6 +66,7 @@
   ./hardware/pcmcia.nix
   ./hardware/printers.nix
   ./hardware/raid/hpsa.nix
+  ./hardware/rfkill.nix
   ./hardware/rtl-sdr.nix
   ./hardware/steam-hardware.nix
   ./hardware/system-76.nix

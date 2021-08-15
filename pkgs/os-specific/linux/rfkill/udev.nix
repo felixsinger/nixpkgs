@@ -24,14 +24,7 @@
 # Note: this package does not need the binaries
 # in the rfkill package.
 
-let
-  rfkillHook =
-    substituteAll {
-      inherit (stdenv) shell;
-      isExecutable = true;
-      src = ./rfkill-hook.sh;
-    };
-in stdenv.mkDerivation {
+stdenv.mkDerivation {
   name = "rfkill-udev";
 
   dontUnpack = true;
@@ -39,12 +32,9 @@ in stdenv.mkDerivation {
 
   installPhase = ''
     mkdir -p "$out/etc/udev/rules.d/";
-    cat > "$out/etc/udev/rules.d/90-rfkill.rules" << EOF
-      SUBSYSTEM=="rfkill", ATTR{type}=="wlan", RUN+="$out/bin/rfkill-hook.sh"
+    cat > "$out/etc/udev/rules.d/rfkill.rules" << EOF
+      KERNEL=="rfkill", GROUP=="rfkill", MODE="0664"
     EOF
-
-    mkdir -p "$out/bin/";
-    cp ${rfkillHook} "$out/bin/rfkill-hook.sh"
   '';
 
   meta = with lib; {
