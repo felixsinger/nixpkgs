@@ -3243,6 +3243,8 @@ with pkgs;
 
   iotools = callPackage ../tools/misc/iotools { };
 
+  vpdtool = callPackage ../tools/misc/vpdtool/default.nix { };
+
   jellyfin = callPackage ../servers/jellyfin { };
 
   jellyfin-media-player = libsForQt5.callPackage ../applications/video/jellyfin-media-player {
