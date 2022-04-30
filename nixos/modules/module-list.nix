@@ -211,6 +211,7 @@
   ./programs/weylus.nix
   ./programs/wireshark.nix
   ./programs/wshowkeys.nix
+  ./programs/xfel.nix
   ./programs/xfs_quota.nix
   ./programs/xonsh.nix
   ./programs/xss-lock.nix

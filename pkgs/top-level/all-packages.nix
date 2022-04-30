@@ -3190,6 +3190,8 @@ with pkgs;
 
   jellyfin = callPackage ../servers/jellyfin { };
 
+  xfel = callPackage ../tools/misc/xfel { };
+
   jellyfin-media-player = libsForQt5.callPackage ../applications/video/jellyfin-media-player {
     inherit (darwin.apple_sdk.frameworks) CoreFoundation Cocoa CoreAudio MediaPlayer;
   };
