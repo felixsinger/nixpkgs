@@ -13,11 +13,12 @@ let
   databaseSettings = {
     production = {
       adapter = cfg.database.type;
-      database = cfg.database.name;
+      database = if cfg.database.type == "sqlite3" then "${cfg.stateDir}/database.sqlite3" else cfg.database.name;
+    } // optionalAttrs (cfg.database.type != "sqlite3") {
       host = if (cfg.database.type == "postgresql" && cfg.database.socket != null) then cfg.database.socket else cfg.database.host;
       port = cfg.database.port;
       username = cfg.database.user;
-    } // optionalAttrs (cfg.database.passwordFile != null) {
+    } // optionalAttrs (cfg.database.type != "sqlite3" && cfg.database.passwordFile != null) {
       password = "#dbpass#";
     } // optionalAttrs (cfg.database.type == "mysql2" && cfg.database.socket != null) {
       socket = cfg.database.socket;
@@ -150,7 +151,7 @@ in
 
       database = {
         type = mkOption {
-          type = types.enum [ "mysql2" "postgresql" ];
+          type = types.enum [ "mysql2" "postgresql" "sqlite3" ];
           example = "postgresql";
           default = "mysql2";
           description = lib.mdDoc "Database engine to use.";
@@ -266,17 +267,11 @@ in
   config = mkIf cfg.enable {
 
     assertions = [
-      { assertion = cfg.database.passwordFile != null || cfg.database.socket != null;
-        message = "one of services.redmine.database.socket or services.redmine.database.passwordFile must be set";
-      }
       { assertion = cfg.database.createLocally -> cfg.database.user == cfg.user;
         message = "services.redmine.database.user must be set to ${cfg.user} if services.redmine.database.createLocally is set true";
       }
       { assertion = pgsqlLocal -> cfg.database.user == cfg.database.name;
         message = "services.redmine.database.user and services.redmine.database.name must be the same when using a local postgresql database";
-      }
-      { assertion = cfg.database.createLocally -> cfg.database.socket != null;
-        message = "services.redmine.database.socket must be set if services.redmine.database.createLocally is set to true";
       }
       { assertion = cfg.database.createLocally -> cfg.database.host == "localhost";
         message = "services.redmine.database.host must be set to localhost if services.redmine.database.createLocally is set to true";
