@@ -248,8 +248,8 @@ in
         };
 
         minimagick_font_path = mkOption {
-          type = types.str;
-          default = "";
+          type = types.nullOr types.str;
+          default = null;
           description = lib.mdDoc "MiniMagick font path";
           example = "/run/current-system/sw/share/X11/fonts/LiberationSans-Regular.ttf";
         };
@@ -290,7 +290,7 @@ in
         scm_bazaar_command = optionalString cfg.components.breezy "${pkgs.breezy}/bin/bzr";
         imagemagick_convert_command = optionalString cfg.components.imagemagick "${pkgs.imagemagick}/bin/convert";
         gs_command = optionalString cfg.components.ghostscript "${pkgs.ghostscript}/bin/gs";
-        minimagick_font_path = "${cfg.components.minimagick_font_path}";
+        minimagick_font_path = optionalString (cfg.components.minimagick_font_path != null) "${cfg.components.minimagick_font_path}";
       };
     };
 
