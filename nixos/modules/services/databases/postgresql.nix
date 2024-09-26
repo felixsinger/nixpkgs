@@ -622,6 +622,31 @@ in
             TimeoutSec = 120;
 
             ExecStart = "${postgresql}/bin/postgres";
+
+            AmbientCapabilities = "";
+            CapabilityBoundingSet = "";
+            LockPersonality = true;
+            MemoryDenyWriteExecute = true;
+            NoNewPrivileges = true;
+            PrivateDevices = true;
+            PrivateTmp = true;
+            ProtectClock = true;
+            ProtectControlGroups = true;
+            ProtectHome = true;
+            ProtectHostname = true;
+            ProtectKernelLogs = true;
+            ProtectKernelModules = true;
+            ProtectKernelTunables = true;
+            ProtectProc = "noaccess";
+            ProtectSystem = "full";
+            RemoveIPC = true;
+            RestrictAddressFamilies = "AF_UNIX AF_INET AF_INET6";
+            RestrictNamespaces = true;
+            RestrictRealtime = true;
+            RestrictSUIDSGID = true;
+            SystemCallArchitectures = "native";
+            SystemCallFilter = "~@clock @cpu-emulation @debug @module @mount @obsolete @raw-io @reboot @swap";
+            UMask = 137;
           }
           (mkIf (cfg.dataDir == "/var/lib/postgresql/${cfg.package.psqlSchema}") {
             StateDirectory = "postgresql postgresql/${cfg.package.psqlSchema}";
