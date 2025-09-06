@@ -1,17 +1,20 @@
 {
-  lib,
   config,
+  lib,
   pkgs,
   ...
 }:
+
 let
   cfg = config.services.mautrix-slack;
+
   dataDir = "/var/lib/mautrix-slack";
   registrationFile = "${dataDir}/slack-registration.yaml";
   settingsFile = "${dataDir}/config.json";
-  settingsFileUnsubstituted = settingsFormat.generate "mautrix-slack-config-unsubstituted.json" cfg.settings;
-  settingsFormat = pkgs.formats.json { };
   appservicePort = 29319;
+
+  settingsFormat = pkgs.formats.json { };
+  settingsFileUnsubstituted = settingsFormat.generate "mautrix-slack-config-unsubstituted.json" cfg.settings;
 
   mkDefaults = lib.mapAttrsRecursive (n: v: lib.mkDefault v);
   defaultConfig = {
@@ -47,7 +50,6 @@ let
       };
     };
   };
-
 in
 {
   options.services.mautrix-slack = {
@@ -56,13 +58,14 @@ in
     package = lib.mkPackageOption pkgs "mautrix-slack" { };
 
     user = lib.mkOption {
-      default = "mautrix-slack";
       type = lib.types.str;
+      default = "mautrix-slack";
       description = "User the mautrix-slack bridge runs as.";
     };
+
     group = lib.mkOption {
-      default = "mautrix-slack";
       type = lib.types.str;
+      default = "mautrix-slack";
       description = "Group the mautrix-slack bridge runs as.";
     };
 
@@ -105,6 +108,7 @@ in
         };
       };
     };
+
     environmentFile = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
       default = null;
@@ -138,14 +142,13 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    users.groups.${cfg.group} = { };
+
     users.users.${cfg.user} = {
       isSystemUser = true;
       group = cfg.group;
-      home = dataDir;
       description = "Mautrix-Slack bridge user";
     };
-
-    users.groups.${cfg.group} = { };
 
     services.matrix-synapse = lib.mkIf cfg.registerToSynapse {
       settings.app_service_config_files = [ registrationFile ];
@@ -201,22 +204,27 @@ in
       '';
 
       serviceConfig = {
+        Type = "simple";
+        Restart = "on-failure";
+        RestartSec = "30s";
         User = cfg.user;
         Group = cfg.group;
         EnvironmentFile = cfg.environmentFile;
-        StateDirectory = baseNameOf dataDir;
+        StateDirectory = "mautrix-slack";
         WorkingDirectory = dataDir;
         ExecStart = ''
           ${cfg.package}/bin/mautrix-slack \
           --config='${settingsFile}' \
           --registration='${registrationFile}'
         '';
+        AmbientCapabilities = "";
+        CapabilityBoundingSet = "";
         LockPersonality = true;
         MemoryDenyWriteExecute = true;
         NoNewPrivileges = true;
         PrivateDevices = true;
+        PrivateMounts = true;
         PrivateTmp = true;
-        PrivateUsers = true;
         ProtectClock = true;
         ProtectControlGroups = true;
         ProtectHome = true;
@@ -225,14 +233,18 @@ in
         ProtectKernelModules = true;
         ProtectKernelTunables = true;
         ProtectSystem = "strict";
-        Restart = "on-failure";
-        RestartSec = "30s";
+        RemoveIPC = true;
+        RestrictAddressFamilies = [
+          "AF_UNIX"
+          "AF_INET"
+          "AF_INET6"
+        ];
+        RestrictNamespaces = true;
         RestrictRealtime = true;
         RestrictSUIDSGID = true;
         SystemCallArchitectures = "native";
         SystemCallErrorNumber = "EPERM";
         SystemCallFilter = [ "@system-service" ];
-        Type = "simple";
         UMask = 27;
       };
       restartTriggers = [ settingsFileUnsubstituted ];
