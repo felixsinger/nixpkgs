@@ -7,6 +7,8 @@
 
 let
   cfg = config.services.murmur;
+  acmeHostDir = config.security.acme.certs."${cfg.tls.useACMEHost}".directory;
+
   forking = cfg.logToFile;
   configFile = pkgs.writeText "murmurd.ini" ''
     database=${cfg.stateDir}/murmur.sqlite
@@ -246,20 +248,37 @@ in
       tls = {
         certPath = lib.mkOption {
           type = lib.types.nullOr lib.types.path;
-          default = null;
+          default = if (cfg.tls.useACMEHost != null) then "${acmeHostDir}/cert.pem" else null;
+          defaultText = lib.literalMD "If services.murmur.tls.useACMEHost is set, defaults to what's provided by the ACME module.";
           description = "Path to your SSL certificate.";
         };
 
         keyPath = lib.mkOption {
           type = lib.types.nullOr lib.types.path;
-          default = null;
+          default = if (cfg.tls.useACMEHost != null) then "${acmeHostDir}/key.pem" else null;
+          defaultText = lib.literalMD "If services.murmur.tls.useACMEHost is set, defaults to what's provided by the ACME module.";
           description = "Path to your SSL key.";
         };
 
         caPath = lib.mkOption {
           type = lib.types.nullOr lib.types.path;
-          default = null;
+          default = if (cfg.tls.useACMEHost != null) then "${acmeHostDir}/chain.pem" else null;
+          defaultText = lib.literalMD "If services.murmur.tls.useACMEHost is set, defaults to what's provided by the ACME module.";
           description = "Path to your SSL CA certificate.";
+        };
+
+        useACMEHost = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "mumble.example.com";
+          description = ''
+            Host of an existing Let's Encrypt certificate to use for SSL.
+            Make sure that the certificate directory is readable by the
+            `murmur` user or group. *Note that this option does not
+            create any certificates, nor it does add subdomains to
+            existing ones – you will need to create them manually using
+            {option}`security.acme.certs`*
+          '';
         };
       };
 
@@ -324,10 +343,16 @@ in
       allowedUDPPorts = [ cfg.port ];
     };
 
+    security.acme.certs."${cfg.tls.useACMEHost}".reloadServices = [ "murmur.service" ];
+
     systemd.services.murmur = {
       description = "Murmur Chat Service";
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ];
+      after = [
+        "network.target"
+      ]
+      ++ lib.optional (cfg.tls.useACMEHost != null) "acme-${cfg.tls.useACMEHost}.service";
+      wants = lib.optional (cfg.tls.useACMEHost != null) "acme-${cfg.tls.useACMEHost}.service";
       preStart = ''
         ${pkgs.envsubst}/bin/envsubst \
           -o /run/murmur/murmurd.ini \
