@@ -128,7 +128,7 @@ in
         services.udev.extraRules = ''
           # /dev/vboxuser is necessary for VBoxClient to work.  Maybe we
           # should restrict this to logged-in users.
-          KERNEL=="vboxuser",  OWNER="root", GROUP="root", MODE="0666"
+          KERNEL=="vboxuser",  OWNER="root", GROUP="root", MODE="0660", TAG+="uaccess"
 
           # Allow systemd dependencies on vboxguest.
           SUBSYSTEM=="misc", KERNEL=="vboxguest", TAG+="systemd"
