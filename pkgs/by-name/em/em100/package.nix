@@ -32,6 +32,14 @@ stdenv.mkDerivation {
 
   doInstallCheck = true;
 
+  postPatch = ''
+    substituteInPlace 60-dediprog-em100pro.rules \
+      --replace-fail 'MODE="664"' 'MODE="660"'
+
+    substituteInPlace 60-dediprog-em100pro.rules \
+      --replace-fail 'GROUP="plugdev"' 'GROUP="plugdev", TAG+="uaccess"'
+  '';
+
   installPhase = ''
     runHook preInstall
     install -Dm755 em100 $out/bin/em100
