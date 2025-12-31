@@ -1,4 +1,9 @@
 {
+  version,
+  hash,
+}:
+
+{
   lib,
   stdenvNoCC,
   fetchurl,
@@ -8,11 +13,11 @@
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "gerrit";
-  version = "3.13.1";
+  inherit version;
 
   src = fetchurl {
     url = "https://gerrit-releases.storage.googleapis.com/gerrit-${finalAttrs.version}.war";
-    hash = "sha256-4+Z1q1cHEM5IaG+SAS7JgiCypfjM8W2Zaa25/KGaoqw=";
+    hash = hash;
   };
 
   buildCommand = ''
