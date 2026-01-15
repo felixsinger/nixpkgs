@@ -1,12 +1,6 @@
-{
-  gerrit,
-  fetchurl,
-}:
+{ callPackage }:
 
-gerrit.overrideAttrs (final: prev: {
+callPackage ./generic.nix {
   version = "3.11.7";
-  src = fetchurl {
-    url = "https://gerrit-releases.storage.googleapis.com/gerrit-${final.version}.war";
-    hash = "sha256-eDf7MW3ikW2yiPEPVZA5RxRbYeSw0ucbS1rsFcdzdk4=";
-  };
-})
+  hash = "sha256-eDf7MW3ikW2yiPEPVZA5RxRbYeSw0ucbS1rsFcdzdk4=";
+}
