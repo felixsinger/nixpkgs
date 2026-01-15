@@ -1168,8 +1168,6 @@ with pkgs;
 
   gerrit_3_13 = callPackage ../by-name/ge/gerrit/3_13.nix { };
 
-  gerrit = gerrit_3_13;
-
   github-cli = gh;
 
   git-annex-metadata-gui =
