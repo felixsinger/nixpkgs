@@ -335,13 +335,21 @@ in
         Restart = "always";
         LogsDirectory = lib.mkIf cfg.logToFile "murmur";
         LogsDirectoryMode = "0750";
-        RuntimeDirectory = "murmur";
+        RuntimeDirectory = [
+          "murmur"
+          "murmur/rootdir"
+        ];
         RuntimeDirectoryMode = "0700";
         User = cfg.user;
         Group = cfg.group;
 
         # service hardening
         AmbientCapabilities = "CAP_NET_BIND_SERVICE";
+        BindPaths = [
+          cfg.stateDir
+        ]
+        ++ lib.optional cfg.logToFile "/var/log/murmur";
+        BindReadOnlyPaths = [ builtins.storeDir "/run" ];
         CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
         LockPersonality = true;
         MemoryDenyWriteExecute = true;
@@ -370,6 +378,7 @@ in
         RestrictNamespaces = true;
         RestrictSUIDSGID = true;
         RestrictRealtime = true;
+        RootDirectory = "/run/murmur/rootdir";
         SystemCallArchitectures = "native";
         SystemCallFilter = "@system-service";
         UMask = 27;
