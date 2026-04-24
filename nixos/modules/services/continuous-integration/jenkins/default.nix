@@ -196,6 +196,12 @@ in
       };
     };
 
+    systemd.sockets.jenkins = {
+      unitConfig.Description = "Jenkins HTTP socket";
+      wantedBy = [ "sockets.target" ];
+      listenStreams = [ "${cfg.listenAddress}:${cfg.port}" ];
+    };
+
     systemd.services.jenkins = {
       description = "Jenkins Continuous Integration Server";
       after = [ "network.target" ];
